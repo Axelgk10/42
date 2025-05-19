@@ -46,13 +46,38 @@ static char	*extract_line(char *line)
 	return (ft_substr(start, 0, len));
 }
 
+static char	*update_backup(char *backup)
+{
+	int		i;
+	int		j;
+	char	*new_backup;
+
+	i = 0;
+	j = 0;
+	while (backup[i] && backup[i] != '\n')
+		i++;
+	if (!backup[i])
+	{
+		free(backup);
+		return (NULL);
+	}
+	new_backup = malloc(ft_strlen(backup) - i + 1);
+	if (!new_backup)
+		return (NULL);
+	j = 0;
+	while (backup[++i])
+		new_backup[j++] = backup[i];
+	new_backup[j] = '\0';
+	free(backup);
+	return (new_backup);
+}
+
 char	*get_next_line(int fd)
 {
-	char	*buffer;
-	char	*line;
+	char		*buffer;
+	char		*line;
 	static char	*backup;
 
-	backup = NULL;
 	if (fd < 0 || BUFFER_SIZE <= 0)
 		return (NULL);
 	buffer = (char *)malloc (sizeof(char) * BUFFER_SIZE + 1);
@@ -66,6 +91,7 @@ char	*get_next_line(int fd)
 		backup = NULL;
 		return (NULL);
 	}
-	backup = extract_line(line);
+	line = extract_line(backup);
+	backup = update_backup(backup);
 	return (line);
 }
